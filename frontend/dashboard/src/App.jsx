@@ -26,6 +26,27 @@ const customTheme = createTheme({
   },
 });
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    name,
+    phone,
+    type,
+    description,
+  };
+
+  const res = await fetch("http://127.0.0.1:8000/cases", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  console.log("Backend svar:", data);
+};
+
+
 
 export default function App() {
   const [data, setData] = useState(null)
@@ -56,6 +77,13 @@ export default function App() {
     modal.show()
     return () => modal.hide()
   }, [])
+
+  useEffect(() => {
+  fetch("http://127.0.0.1:8000/cases")
+    .then(res => res.json())
+    .then(data => setCases(data));
+}, []);
+
 
   return (
     <ThemeProvider theme={customTheme}>
