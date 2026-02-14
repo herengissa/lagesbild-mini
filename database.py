@@ -1,22 +1,18 @@
-from sqlalchemy import create_engine, Column, Integer, String
+import os
+
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Skapa SQLite-databas
-engine = create_engine("sqlite:///lagesbild.db", echo=True)
+load_dotenv()
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:1311@localhost:5432/lagesbild-mini",
+)
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-
-# Modell för tabellen
-class Status(Base):
-    __tablename__ = "status"
-
-    id = Column(Integer, primary_key=True, index=True)
-    status = Column(String)
-    plats = Column(String)
-    tid = Column(String)
-
-# Skapa tabellerna om de inte finns
-Base.metadata.create_all(bind=engine)
-
-# Session
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

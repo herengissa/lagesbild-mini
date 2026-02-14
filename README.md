@@ -1,11 +1,10 @@
 # Lagesbild Mini
 
-Fullstack-projekt med FastAPI + SQLite i backend och React (Vite) i frontend.
+Fullstack-projekt med FastAPI + Postgres i backend och React (Vite) i frontend.
 
 ## Struktur
 - `main.py` – FastAPI‑app och API‑endpoints
-- `database.py` – SQLite/SQLAlchemy‑modell och session
-- `lagesbild.db` – lokal databas
+- `database.py` – Postgres/SQLAlchemy‑koppling och session
 - `frontend/dashboard` – React + Vite + Tailwind + Flowbite
 
 ## Krav
@@ -16,21 +15,23 @@ Fullstack-projekt med FastAPI + SQLite i backend och React (Vite) i frontend.
 1) Aktivera venv och installera paket:
    - `source venv/bin/activate`
    - `pip install -r requirements.txt` (om du har en requirements‑fil)
-2) Starta servern:
+2) Skapa en `.env`‑fil (eller kopiera `env.example`) och sätt `DATABASE_URL`:
+   - `DATABASE_URL="postgresql://postgres:1311@localhost:5432/lagesbild-mini"`
+3) Starta servern:
    - `uvicorn main:app --reload`
 
 Backend körs på `http://127.0.0.1:8000`.
 
 ### Endpoints
 - `GET /` – hälsokoll
-- `POST /status` – spara status (`status`, `plats`, `tid`)
-- `GET /all` – hämta alla statusrader
+- `POST /cases` – skapa ärende (`name`, `phone`, `type`, `description`)
+- `GET /cases` – hämta alla ärenden
 
 Exempel:
 ```
-curl -X POST http://127.0.0.1:8000/status \
+curl -X POST http://127.0.0.1:8000/cases \
   -H "Content-Type: application/json" \
-  -d '{"status":"Brand","plats":"Stockholm","tid":"12:30"}'
+  -d '{"name":"Alex","phone":"070-123 45 67","type":"Brand","description":"Rök syns"}'
 ```
 
 ## Frontend (React + Vite)

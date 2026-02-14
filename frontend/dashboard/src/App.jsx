@@ -26,36 +26,26 @@ const customTheme = createTheme({
   },
 });
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const payload = {
-    name,
-    phone,
-    type,
-    description,
-  };
-
-  const res = await fetch("http://127.0.0.1:8000/cases", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  const data = await res.json();
-  console.log("Backend svar:", data);
-};
-
-
-
 export default function App() {
   const [data, setData] = useState(null)
+  const [cases, setCases] = useState([])
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [type, setType] = useState('Brand')
+  const [description, setDescription] = useState('')
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/')
       .then((res) => res.json())
       .then((json) => setData(json))
       .catch((err) => console.error('API error:', err))
+  }, [])
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/cases')
+      .then((res) => res.json())
+      .then((json) => setCases(json))
+      .catch((err) => console.error('Cases error:', err))
   }, [])
 
   useEffect(() => {
@@ -78,11 +68,29 @@ export default function App() {
     return () => modal.hide()
   }, [])
 
-  useEffect(() => {
-  fetch("http://127.0.0.1:8000/cases")
-    .then(res => res.json())
-    .then(data => setCases(data));
-}, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    const payload = { name, phone, type, description }
+
+    const res = await fetch('http://127.0.0.1:8000/cases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    const responseData = await res.json()
+    console.log('Backend svar:', responseData)
+
+    if (res.ok) {
+      setName('')
+      setPhone('')
+      setType('Brand')
+      setDescription('')
+
+      setCases((prev) => [responseData, ...prev])
+    }
+  }
 
 
   return (
@@ -123,7 +131,7 @@ export default function App() {
           Skapa nytt ärende nedanför
         </h1>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
 
           {/* Namn */}
           <div className="flex flex-col">
@@ -133,6 +141,8 @@ export default function App() {
             <input
               type="text"
               placeholder="Ange namn"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="border border-gray-150 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -145,6 +155,8 @@ export default function App() {
             <input
               type="tel"
               placeholder="070-123 45 67"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -155,6 +167,8 @@ export default function App() {
               Ärendetyp
             </label>
             <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option>Brand</option>
@@ -172,12 +186,14 @@ export default function App() {
             <textarea
               rows="4"
               placeholder="Beskriv situationen..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             ></textarea>
           </div>
 
           {/* Skicka-knapp */}
-          <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:bg-gradient-to-l focus:ring-purple-200 dark:focus:ring-purple-800">
+          <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:bg-gradient-to-l focus:ring-purple-200 dark:focus:ring-purple-800">
             Skicka ärende
           </Button>
 
@@ -192,6 +208,23 @@ export default function App() {
             <pre className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
           ) : (
             <p>Laddar data...</p>
+          )}
+        </div>
+
+        <div className="rounded-lg bg-white/80 p-3 text-sm">
+          <div className="mb-2 font-semibold text-gray-700">Ärenden</div>
+          {cases.length > 0 ? (
+            <div className="space-y-2">
+              {cases.map((item) => (
+                <div key={item.id} className="rounded-md border border-gray-200 bg-white/70 p-2">
+                  <div className="font-medium">{item.name}</div>
+                  <div className="text-xs text-gray-600">{item.phone} • {item.type}</div>
+                  <div className="text-sm text-gray-700">{item.description}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>Inga ärenden ännu.</p>
           )}
         </div>
       </div>
