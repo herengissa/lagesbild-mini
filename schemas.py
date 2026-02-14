@@ -8,6 +8,12 @@ class CaseCreate(BaseModel):
     phone: str
     type: str
     description: str
+    
+class CaseUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    type: str | None = None
+    description: str | None = None
 
 
 class UserOut(BaseModel):
