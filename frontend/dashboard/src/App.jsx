@@ -35,6 +35,7 @@ export default function App() {
   const [description, setDescription] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [logs, setLogs] = useState([])
+  const [selectedCaseId, setSelectedCaseId] = useState(null)
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/')
@@ -46,7 +47,12 @@ export default function App() {
   const fetchCases = () => {
     fetch('http://127.0.0.1:8000/cases')
       .then((res) => res.json())
-      .then((json) => setCases(json))
+      .then((json) => {
+        setCases(json)
+        if (json.length > 0 && !selectedCaseId) {
+          setSelectedCaseId(json[0].id)
+        }
+      })
       .catch((err) => console.error('Cases error:', err))
   }
 
@@ -74,12 +80,17 @@ export default function App() {
     return () => modal.hide()
   }, [])
 
+  const fetchLogs = (caseId) => {
+    if (!caseId) return
+    fetch(`http://127.0.0.1:8000/logs/case/${caseId}`)
+      .then((res) => res.json())
+      .then((json) => setLogs(json))
+      .catch((err) => console.error('Logs error:', err))
+  }
+
   useEffect(() => {
-  fetch('http://127.0.0.1:8000/logs/case/1')  // byt 1 mot rätt case_id
-    .then(res => res.json())
-    .then(json => setLogs(json))
-    .catch(err => console.error('Logs error:', err))
-}, [])
+    fetchLogs(selectedCaseId)
+  }, [selectedCaseId])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -103,7 +114,9 @@ export default function App() {
 
       setSubmitError('')
       setCases((prev) => [responseData, ...prev])
+      setSelectedCaseId(responseData.id)
       fetchCases()
+      fetchLogs(responseData.id)
     } else {
       setSubmitError(
         typeof responseData?.detail === 'string'

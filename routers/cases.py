@@ -25,6 +25,15 @@ def create_case(case: schemas.CaseCreate, db: Session = Depends(get_db)):
     db.add(db_case)
     db.commit()
     db.refresh(db_case)
+    
+    # Auto-logg när ärendet skapas
+    log = models.CaseLog(
+        message=f"Ärende skapades: {db_case.type} - {db_case.description}",
+        case_id=db_case.id,
+        user_id=2
+    )
+    db.add(log)
+    db.commit()
     return db_case
 
 
@@ -49,7 +58,7 @@ def update_case(case_id: int, updated: schemas.CaseUpdate, db: Session = Depends
     log = models.CaseLog(
         message=f"Ärende uppdaterades: {updated.model_dump(exclude_unset=True)}",
         case_id=case.id,
-        user_id=1
+        user_id=2
     )
     db.add(log)
     db.commit()
