@@ -1,15 +1,16 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal
+
 import models
 import schemas
+from database import SessionLocal
 
 router = APIRouter(
     prefix="/cases",
-    tags=["Cases"]
+    tags=["Cases"],
 )
 
-# Dependency
+
 def get_db():
     db = SessionLocal()
     try:

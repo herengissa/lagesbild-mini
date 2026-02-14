@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
-from routers import cases, health
+import models
+from routers import auth, cases, health, logs, users
 
 Base.metadata.create_all(bind=engine)
 
@@ -15,11 +16,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
-app.include_router(cases.router)
-app.include_router(health.router)
-
 
 @app.get("/")
 def root():
-    return {"message": "Backend fungerar!"}
+    return {"message": "Lägesbild Mini API med Postgres är igång!"}
+
+
+app.include_router(cases.router)
+app.include_router(health.router)
+app.include_router(users.router)
+app.include_router(logs.router)
+app.include_router(auth.router)

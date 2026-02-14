@@ -33,6 +33,8 @@ export default function App() {
   const [phone, setPhone] = useState('')
   const [type, setType] = useState('Brand')
   const [description, setDescription] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [logs, setLogs] = useState([])
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/')
@@ -41,11 +43,15 @@ export default function App() {
       .catch((err) => console.error('API error:', err))
   }, [])
 
-  useEffect(() => {
+  const fetchCases = () => {
     fetch('http://127.0.0.1:8000/cases')
       .then((res) => res.json())
       .then((json) => setCases(json))
       .catch((err) => console.error('Cases error:', err))
+  }
+
+  useEffect(() => {
+    fetchCases()
   }, [])
 
   useEffect(() => {
@@ -68,6 +74,13 @@ export default function App() {
     return () => modal.hide()
   }, [])
 
+  useEffect(() => {
+  fetch('http://127.0.0.1:8000/logs/case/1')  // byt 1 mot rätt case_id
+    .then(res => res.json())
+    .then(json => setLogs(json))
+    .catch(err => console.error('Logs error:', err))
+}, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -88,7 +101,15 @@ export default function App() {
       setType('Brand')
       setDescription('')
 
+      setSubmitError('')
       setCases((prev) => [responseData, ...prev])
+      fetchCases()
+    } else {
+      setSubmitError(
+        typeof responseData?.detail === 'string'
+          ? responseData.detail
+          : 'Kunde inte spara ärendet.'
+      )
     }
   }
 
@@ -193,13 +214,16 @@ export default function App() {
           </div>
 
           {/* Skicka-knapp */}
-          <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:bg-gradient-to-l focus:ring-purple-200 dark:focus:ring-purple-800">
+          <Button
+            type="submit"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:bg-gradient-to-l focus:ring-purple-200 dark:focus:ring-purple-800"
+          >
             Skicka ärende
           </Button>
+          {submitError ? (
+            <p className="text-sm text-red-600">{submitError}</p>
+          ) : null}
 
-          <div className="flex flex-wrap items-start gap-2">
-            <Button type="button" size="lg">Extra large</Button>
-          </div>
 
         </form>
 
@@ -225,6 +249,22 @@ export default function App() {
             </div>
           ) : (
             <p>Inga ärenden ännu.</p>
+          )}
+        </div>
+
+        <div className="rounded-lg bg-white/80 p-3 text-sm">
+          <div className="mb-2 font-semibold text-gray-700">Loggar</div>
+          {logs.length > 0 ? (
+            logs.map((log) => (
+              <div key={log.id} className="border-b py-2">
+                <p className="text-sm">{log.message}</p>
+                <p className="text-xs text-gray-500">
+                  {new Date(log.timestamp).toLocaleString()}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p>Inga loggar ännu.</p>
           )}
         </div>
       </div>
