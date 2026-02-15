@@ -12,6 +12,8 @@ import {
 } from 'flowbite-react'
 import myAvatar from './assets/bild3.png'
 import backgroundImage from './assets/nasa.jpg'
+import ScrollFloat from './components/ScrollFloat'
+
 
 
 const customTheme = createTheme({
@@ -49,8 +51,11 @@ export default function App() {
       .then((res) => res.json())
       .then((json) => {
         setCases(json)
-        if (json.length > 0 && !selectedCaseId) {
-          setSelectedCaseId(json[0].id)
+        if (json.length > 0) {
+          const latestId = json.reduce((maxId, item) => (
+            item.id > maxId ? item.id : maxId
+          ), json[0].id)
+          setSelectedCaseId((prev) => (prev ?? latestId))
         }
       })
       .catch((err) => console.error('Cases error:', err))
@@ -161,9 +166,18 @@ export default function App() {
             </Dropdown>
           </div>
 
-        <h1 className="text-2xl font-semibold text-gray-400">
-          Skapa nytt ärende nedanför
-        </h1>
+        <ScrollFloat
+          animationDuration={1}
+          ease="back.inOut(2)"
+          scrollStart="top 90%"
+          scrollEnd="top 50%"
+          stagger={0.03}
+          scrub={false}
+        >
+          <h1 className="text-2xl font-semibold text-gray-400">
+            Skapa nytt ärende nedanför
+          </h1>
+        </ScrollFloat>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
 
@@ -281,36 +295,9 @@ export default function App() {
           )}
         </div>
       </div>
-      </div>
-        <div
-          id="modalEl"
-          tabIndex="-1"
-          aria-hidden="true"
-          className="hidden fixed inset-0 z-50 flex items-center justify-center"
-        >
-          <div className="relative w-full max-w-md p-4">
-            <div className="relative rounded-lg bg-white shadow">
-              <div className="flex items-center justify-between border-b p-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Flowbite modal
-                </h3>
-                <button
-                  type="button"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900"
-                  data-modal-hide="modalEl"
-                  aria-label="Close"
-                >
-                  <span className="sr-only">Close modal</span>
-                  ×
-                </button>
-              </div>
-              <div className="p-4 text-gray-600">
-                Det här är ett exempel på en Flowbite-modal.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+    <div className="h-[120vh]" />
+  </div>
     </ThemeProvider>
   )
 }

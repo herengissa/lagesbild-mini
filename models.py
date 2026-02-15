@@ -42,6 +42,7 @@ class CaseLog(Base):
     case_id = Column(Integer, ForeignKey("cases.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     message = Column(String, nullable=False)
+    log_type = Column(String, nullable=False, default="info")
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     case = relationship("Case", back_populates="logs")

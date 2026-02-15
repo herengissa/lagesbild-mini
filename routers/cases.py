@@ -30,7 +30,8 @@ def create_case(case: schemas.CaseCreate, db: Session = Depends(get_db)):
     log = models.CaseLog(
         message=f"Ärende skapades: {db_case.type} - {db_case.description}",
         case_id=db_case.id,
-        user_id=2
+        user_id=2,
+        log_type="info"
     )
     db.add(log)
     db.commit()
@@ -58,7 +59,8 @@ def update_case(case_id: int, updated: schemas.CaseUpdate, db: Session = Depends
     log = models.CaseLog(
         message=f"Ärende uppdaterades: {updated.model_dump(exclude_unset=True)}",
         case_id=case.id,
-        user_id=2
+        user_id=2,
+        log_type="warning"
     )
     db.add(log)
     db.commit()

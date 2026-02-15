@@ -37,11 +37,13 @@ class CaseLogCreate(BaseModel):
     case_id: int
     user_id: int
     message: str
+    log_type: str = "info"
 
 
 class CaseLogOut(BaseModel):
     id: int
     message: str
+    log_type: str
     timestamp: datetime
     user: UserOut
 
